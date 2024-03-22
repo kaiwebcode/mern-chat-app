@@ -6,25 +6,28 @@ import connectToMongoDb from "./Database/connectToMongoDb.js";
 import MessageRoutes from "./route/message.routes.js";
 import userRoutes from "./route/user.routes.js";
 import { app, server } from "./socket/socket.js";
-
+import path from "path";
 
 const PORT = process.env.PORT || 5000;
+
+const __dirname = path.resolve();
 
 dotenv.config();
 
 app.use(express.json()); // to parse the incoming requests with JSON payloads (from req.body)
 app.use(cookieParser());
 
-app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRoutes);
 app.use("/api/messages", MessageRoutes);
 app.use("/api/users", userRoutes);
 
-// app.get("/", (req, res) => {
-//     //root route http://localhost:5000
-//     res.send("Hello World!!")
-// });
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+});
 
 server.listen(PORT, () => {
-    connectToMongoDb();
-    console.log(`Server Running on port ${PORT}`)
+  connectToMongoDb();
+  console.log(`Server Running on port ${PORT}`);
 });
